@@ -1,4 +1,57 @@
-![Node.js CI](https://github.com/Sparticuz/usps-webtools-promise/workflows/Node.js%20CI/badge.svg) ![CodeQL](https://github.com/Sparticuz/usps-webtools-promise/workflows/CodeQL/badge.svg)
+# This package is deprecated!
+
+https://github.com/Sparticuz/usps-webtools-promise/issues/27#issuecomment-4031656196 Thanks @jtalk22!
+
+> Update: The Web Tools platform was **fully retired on January 25, 2026**. All endpoints this package uses now return errors — the password requirement discussed here was the precursor to the complete shutdown.
+> 
+> For anyone migrating from `usps-webtools-promise` (or `usps-webtools`) to the new USPS v3 REST API:
+> 
+> **Node.js migration path:**
+>
+> ```typescript
+> // Old (usps-webtools-promise — no longer works)
+> const USPS = require('usps-webtools-promise');
+> const usps = new USPS({ userId: 'YOUR_USERID' });
+> const result = await usps.verify({ street1: '1600 Pennsylvania Ave NW', city: 'Washington', state: 'DC', zip: '20500' });
+> ```
+> ```typescript
+> // New (direct v3 API)
+> const token = await fetch('https://apis.usps.com/oauth2/v3/token', {
+>   method: 'POST',
+>   headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+>   body: new URLSearchParams({
+>     grant_type: 'client_credentials',
+>     client_id: process.env.USPS_CLIENT_ID,
+>     client_secret: process.env.USPS_CLIENT_SECRET,
+>     scope: 'addresses tracking prices'
+>   })
+> }).then(r => r.json()).then(d => d.access_token);
+> 
+> const result = await fetch('https://apis.usps.com/addresses/v3/address?' + new URLSearchParams({
+>   streetAddress: '1600 Pennsylvania Ave NW',
+>   city: 'Washington',
+>   state: 'DC',
+>   ZIPCode: '20500'
+> }), {
+>   headers: { Authorization: `Bearer ${token}` }
+> }).then(r => r.json());
+> ```
+> Or use the `usps-v3` npm package which handles OAuth token management and caching:
+> 
+> `npm install usps-v3`
+> ```typescript
+> import { USPSClient } from 'usps-v3';
+> const client = new USPSClient({ clientId: '...', clientSecret: '...' });
+> const result = await client.addresses.validate({
+>   streetAddress: '1600 Pennsylvania Ave NW',
+>   city: 'Washington',
+>   state: 'DC',
+>   ZIPCode: '20500',
+> });
+> ```
+> Register for new OAuth credentials at [developer.usps.com](https://developer.usps.com) (free, replaces the old USERID registration).
+> 
+> Full endpoint mapping from Web Tools → v3: [revaddress.com/blog/usps-web-tools-endpoint-mapping](https://revaddress.com/blog/usps-web-tools-endpoint-mapping)
 
 ### About:
 
